@@ -37,5 +37,19 @@ function score(candidate) {
 // funny without needing a caption.
 const best = candidates.reduce((a, b) => (score(b) > score(a) ? b : a));
 
+// Self-check against the gate before writing anything: the entry must be
+// UTF-8 text of 1-30 characters, one word, not only whitespace. Fail loudly
+// instead of writing an invalid entry the judge would never see.
+const word = best.word;
+if (
+  word.length < 1 ||
+  word.length > 30 ||
+  /\s/.test(word) ||
+  word.trim() !== word
+) {
+  console.error(`Refusing to write invalid entry word: ${JSON.stringify(word)}`);
+  process.exit(1);
+}
+
 mkdirSync(OUT_DIR, { recursive: true });
-writeFileSync(OUT_FILE, best.word, "utf8");
+writeFileSync(OUT_FILE, word, "utf8");
